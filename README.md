@@ -39,8 +39,11 @@
       line-height: 1.55;
       background: var(--bg);
       color: var(--text);
-      transition: background 0.2s ease, color 0.2s ease;
+      transition: opacity ease-in 0.2s;
+      opacity: 0; display: block; overflow: hidden; position: relative;
     }
+
+    
 
     h1 { font-size: 2rem; margin-bottom: 0.4rem; }
     h2 { font-size: 1.2rem; margin-top: 2.2rem; }

@@ -61,7 +61,7 @@ section { margin-bottom: 2.5rem; }
 .markdown-body figure { margin: 1.5rem 0; }
 figcaption { text-align: center; color: var(--text-muted); font-size: 0.875rem; margin-top: 0.7rem; }
 audio, video { width: 100%; max-width: 100%; }
-.news-item { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); gap: 0.65rem; padding: 0.18rem 0; font-size: 1.0556rem; line-height: 1.5; }
+.news-item { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); gap: 0.65rem; padding: 0.18rem 0; font-size: 1em; line-height: 1.5; }
 .news-date, .blog-date, .page-header time { font: 0.8rem/1.7 var(--font-mono); color: var(--text-muted); }
 .news-date { padding-top: 0.2rem; }
 .page-header { margin-bottom: 2rem; }

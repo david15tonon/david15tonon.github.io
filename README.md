@@ -16,6 +16,10 @@ Le frontmatter de chaque version d'un billet doit contenir `title`, `date` et
 `description`. La description alimente les métadonnées standard, Open Graph et
 Twitter de la page d'article.
 
+Une image utilisée uniquement pour l'aperçu du lien partagé peut être définie
+avec `preview_image` et `preview_image_alt`. Contrairement à `image`, elle n'est
+pas affichée dans le contenu de l'article.
+
 ### Développement
 
 ```bash

@@ -2,6 +2,8 @@
 title: Reading of the week #1
 date: 2026-08-23
 description: Articles and resources that caught my attention this week.
+preview_image: ../../assets/media/rotw/1.jpg
+preview_image_alt: Reading of the week #1 preview
 ---
 
 - [What Do You Want?](https://calvinrosser.com/what-do-you-want/) — Calvin Rosser

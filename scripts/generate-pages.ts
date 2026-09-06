@@ -55,11 +55,11 @@ function absoluteImageUrl(path: string, kind: Kind, slug: string): string {
 }
 
 function previewImage(kind: Kind, slug: string, fr: Document, en: Document): { url: string; alt: string } {
-  const frontmatterImage = en.meta.image || fr.meta.image;
+  const frontmatterImage = en.meta.preview_image || fr.meta.preview_image || en.meta.image || fr.meta.image;
   if (frontmatterImage) {
     return {
       url: absoluteImageUrl(frontmatterImage, kind, slug),
-      alt: en.meta.image_alt || fr.meta.image_alt || en.meta.title || fr.meta.title || "Rosas Behoundja",
+      alt: en.meta.preview_image_alt || fr.meta.preview_image_alt || en.meta.image_alt || fr.meta.image_alt || en.meta.title || fr.meta.title || "Rosas Behoundja",
     };
   }
 

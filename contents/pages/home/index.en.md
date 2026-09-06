@@ -1,4 +1,4 @@
-Hey 🤓!
+Hello, fellow human :>
 
 I'm a computer science undergrad at IFRI, University of Abomey-Calavi, in [Benin](https://www.benin.bj/en) 🇧🇯, grateful to be advised by Dr. [Vinasétan Ratheil Houndji](https://ratheilh.github.io).
 

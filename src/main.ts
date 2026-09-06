@@ -1,4 +1,10 @@
-import "@fortawesome/fontawesome-free/css/all.min.css";
+import "@fontsource/inter/latin-400.css";
+import "@fontsource/inter/latin-400-italic.css";
+import "@fontsource/inter/latin-600.css";
+import "@fontsource/inter/latin-700.css";
+import "@fontsource/bricolage-grotesque/latin-500.css";
+import "@fontsource/bricolage-grotesque/latin-600.css";
+import "@fontsource/bricolage-grotesque/latin-700.css";
 import "../assets/css/style.css";
 
 export type SiteLanguage = "fr" | "en";
@@ -16,7 +22,11 @@ export function applyLanguage(language: SiteLanguage, persist = true): void {
   html.lang = language;
 
   const button = document.getElementById("langBtn");
-  if (button) button.textContent = language === "fr" ? "🇬🇧 EN" : "🇫🇷 FR";
+  if (button) {
+    button.hidden = false;
+    button.textContent = language === "fr" ? "EN" : "FR";
+    button.setAttribute("aria-label", language === "fr" ? "Switch to English" : "Passer en français");
+  }
 
   if (persist) {
     try {
@@ -39,20 +49,7 @@ function initializeLanguage(): void {
   applyLanguage(language, false);
 }
 
-function toggleMobileMenu(): void {
-  const menu = document.getElementById("mobileMenu");
-  const icon = document.getElementById("menuIcon");
-  if (!menu) return;
-
-  const willOpen = menu.classList.contains("hidden");
-  menu.classList.toggle("hidden", !willOpen);
-  menu.classList.toggle("flex", willOpen);
-  icon?.classList.toggle("fa-bars", !willOpen);
-  icon?.classList.toggle("fa-xmark", willOpen);
-}
-
 initializeLanguage();
 document.getElementById("langBtn")?.addEventListener("click", () => {
   applyLanguage(currentLanguage() === "en" ? "fr" : "en");
 });
-document.getElementById("menuToggleBtn")?.addEventListener("click", toggleMobileMenu);

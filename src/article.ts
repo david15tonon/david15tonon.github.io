@@ -2,14 +2,6 @@ import "./main";
 
 const root = document.querySelector<HTMLElement>("[data-article]");
 if (root) {
-  root.querySelectorAll<HTMLAnchorElement>("a[href]").forEach((link) => {
-    const url = new URL(link.href, location.href);
-    if ((url.protocol === "http:" || url.protocol === "https:") && url.origin !== location.origin) {
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-    }
-  });
-
   const codeBlocks = root.querySelectorAll<HTMLPreElement>("pre");
   if (codeBlocks.length) {
     void (async () => {
@@ -28,15 +20,27 @@ if (root) {
     const button = document.createElement("button");
     button.className = "copy-code";
     button.type = "button";
-    button.textContent = document.documentElement.classList.contains("lang-fr") ? "Copier" : "Copy";
+    const french = () => document.documentElement.lang === "fr";
+    const label = () => { button.textContent = french() ? "Copier" : "Copy"; };
+    label();
+    document.addEventListener("site:language", label);
+    const status = document.createElement("span");
+    status.className = "sr-only";
+    status.setAttribute("role", "status");
+    pre.tabIndex = 0;
     button.addEventListener("click", async () => {
       const code = pre.querySelector("code")?.textContent ?? "";
-      await navigator.clipboard.writeText(code);
-      const french = document.documentElement.classList.contains("lang-fr");
-      button.textContent = french ? "Copié !" : "Copied!";
-      window.setTimeout(() => { button.textContent = french ? "Copier" : "Copy"; }, 1600);
+      try {
+        await navigator.clipboard.writeText(code);
+        button.textContent = french() ? "Copié !" : "Copied!";
+        status.textContent = button.textContent;
+      } catch {
+        status.textContent = french() ? "Copie impossible. Sélectionnez le code pour le copier." : "Unable to copy. Select the code to copy it.";
+        button.textContent = french() ? "Réessayer" : "Try again";
+      }
+      window.setTimeout(label, 1600);
     });
-    pre.appendChild(button);
+    pre.append(button, status);
   });
 
   if (root.textContent?.includes("$")) {

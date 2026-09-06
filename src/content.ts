@@ -1,5 +1,3 @@
-import { marked } from "marked";
-
 export type Language = "fr" | "en";
 export type Frontmatter = Record<string, string>;
 
@@ -20,17 +18,4 @@ export function parseFrontmatter(raw: string): MarkdownDocument {
     if (key) meta[key] = line.slice(separator + 1).trim();
   }
   return { meta, body: match[2] ?? "" };
-}
-
-export function renderMarkdown(source: string): string {
-  return marked.parse(source, { async: false }) as string;
-}
-
-export function renderInline(source: string): string {
-  return marked.parseInline(source, { async: false }) as string;
-}
-
-export function setHTML(id: string, html: string): void {
-  const element = document.getElementById(id);
-  if (element) element.innerHTML = html;
 }

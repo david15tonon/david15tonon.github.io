@@ -9,3 +9,5 @@ src/generated-content.ts
 .vscode/
 .codex/
 .agent/
+test-results/
+playwright-report/

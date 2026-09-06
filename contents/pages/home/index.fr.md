@@ -1,4 +1,4 @@
-Salut 🤓 !
+Salut, camarade humain :>
 
 Je suis étudiant en licence d'informatique à l'IFRI de l'Université d'Abomey-Calavi, au [Bénin](https://www.benin.bj) 🇧🇯, et je suis encadré par le Dr. [Vinasétan Ratheil Houndji](https://ratheilh.github.io).
 

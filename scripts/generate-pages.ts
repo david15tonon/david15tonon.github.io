@@ -1,158 +1,143 @@
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { marked } from "marked";
+import sharp from "sharp";
+import { escape, localized, page, socialLinks } from "./templates.ts";
+import type { Language } from "./templates.ts";
+import { parseFrontmatter } from "../src/content.ts";
 
-type Meta = Record<string, string>;
 type Kind = "blog" | "news";
-
-interface Document {
-  meta: Meta;
-  body: string;
-}
-
+type Document = ReturnType<typeof parseFrontmatter>;
+interface Post { slug: string; kind: Kind; fr: Document; en: Document }
 const root = process.cwd();
 const siteUrl = "https://rosasbehoundja.github.io";
+const imageDimensions = new Map<string, { width: number; height: number }>();
+function imageFiles(directory: string): string[] {
+  return readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+    const path = resolve(directory, entry.name);
+    return entry.isDirectory() ? imageFiles(path) : /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(path) ? [path] : [];
+  });
+}
+await Promise.all([...imageFiles(resolve(root, "assets/media")), ...imageFiles(resolve(root, "contents"))].map(async path => {
+  const { width, height } = await sharp(path).metadata();
+  if (width && height) imageDimensions.set(path, { width, height });
+}));
 
-function parse(raw: string): Document {
-  const match = raw.match(/^---\s*\n([\s\S]*?)\n---\s*\n?([\s\S]*)$/);
-  if (!match) return { meta: {}, body: raw };
-  const meta: Meta = {};
-  for (const line of (match[1] ?? "").split("\n")) {
-    const separator = line.indexOf(":");
-    if (separator < 0) continue;
-    const key = line.slice(0, separator).trim();
-    if (key) meta[key] = line.slice(separator + 1).trim();
-  }
-  return { meta, body: match[2] ?? "" };
+function write(path: string, content: string): void {
+  const output = resolve(root, path);
+  mkdirSync(dirname(output), { recursive: true });
+  writeFileSync(output, content);
 }
 
-function escape(value = ""): string {
-  return value.replace(/[&<>'"]/g, (character) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;",
-  })[character] ?? character);
+function source(path: string, language: Language): string {
+  return readFileSync(resolve(root, `contents/${path}/index.${language}.md`), "utf8");
 }
 
-function renderBody(body: string, kind: Kind, slug: string): string {
-  const rendered = marked.parse(body, { async: false }) as string;
-  return rendered
-    .replace(/((?:src|href)=["'])imgs\//g, `$1/contents/${kind}/posts/${slug}/imgs/`)
-    .replaceAll('../../content/', '/contents/')
-    .replaceAll('../../contents/', '/contents/')
-    .replaceAll('../../assets/', '/assets/')
+function imageAttributes(html: string): string {
+  return html.replace(/<img\b[^>]*>/g, tag => {
+    const src = tag.match(/\bsrc="([^"]+)"/)?.[1];
+    let attributes = ' decoding="async"';
+    if (!/\bloading=/.test(tag)) attributes += ' loading="lazy"';
+    if (src && !/^(https?:|data:)/.test(src) && !/\bwidth=/.test(tag)) {
+      const file = resolve(root, src.replace(/^\//, ""));
+      const dimensions = imageDimensions.get(file);
+      if (dimensions) {
+        const { width, height } = dimensions;
+        attributes += ` width="${width}" height="${height}"`;
+      }
+    }
+    return tag.replace(/\s*\/?>$/, `${attributes}>`);
+  });
+}
+
+function markdown(body: string, post?: Post): string {
+  let html = marked.parse(body, { async: false });
+  if (post) html = html.replace(/((?:src|href)=["'])imgs\//g, `$1/contents/${post.kind}/posts/${post.slug}/imgs/`);
+  html = html.replaceAll('../../content/', '/contents/').replaceAll('../../contents/', '/contents/').replaceAll('../../assets/', '/assets/')
     .replace(/(?:\.\.\/)?article\.html\?post=([a-z0-9-]+)/g, "/pages/news/articles/$1/")
     .replace(/(?:\.\.\/)?post\.html\?post=([a-z0-9-]+)/g, "/pages/blog/articles/$1/");
+  return imageAttributes(html).replace(/<table>/g, '<div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table>').replace(/<\/table>/g, '</table></div>');
 }
 
-function absoluteImageUrl(path: string, kind: Kind, slug: string): string {
-  if (/^https?:\/\//i.test(path)) return path;
-  const normalized = path
-    .replace(/^\.\.\/\.\.\/content\//, "/contents/")
-    .replace(/^\.\.\/\.\.\/contents\//, "/contents/")
-    .replace(/^\.\.\/\.\.\/assets\//, "/assets/");
-  if (normalized.startsWith("/")) return `${siteUrl}${normalized}`;
-  if (normalized.startsWith("imgs/")) return `${siteUrl}/contents/${kind}/posts/${slug}/${normalized}`;
-  return `${siteUrl}/contents/${kind}/posts/${slug}/${normalized.replace(/^\.\//, "")}`;
+function bilingual(path: string): string {
+  return (["fr", "en"] as const).map(lang => `<div class="${lang}-text markdown-body" lang="${lang}">${markdown(source(path, lang))}</div>`).join("");
 }
 
-function previewImage(kind: Kind, slug: string, fr: Document, en: Document): { url: string; alt: string } {
-  const frontmatterImage = en.meta.preview_image || fr.meta.preview_image || en.meta.image || fr.meta.image;
-  if (frontmatterImage) {
-    return {
-      url: absoluteImageUrl(frontmatterImage, kind, slug),
-      alt: en.meta.preview_image_alt || fr.meta.preview_image_alt || en.meta.image_alt || fr.meta.image_alt || en.meta.title || fr.meta.title || "Rosas Behoundja",
-    };
-  }
-
-  for (const document of [en, fr]) {
-    const firstImage = renderBody(document.body, kind, slug).match(/<img\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/i);
-    if (!firstImage?.[1]) continue;
-    const alt = firstImage[0].match(/\balt=["']([^"']*)["']/i)?.[1] ?? document.meta.title ?? "";
-    return { url: absoluteImageUrl(firstImage[1], kind, slug), alt };
-  }
-
-  return {
-    url: `${siteUrl}/assets/media/preview.jpg`,
-    alt: "Two cartoon starfish learning in front of a whiteboard",
-  };
+function posts(kind: Kind): Post[] {
+  return readdirSync(resolve(root, `contents/${kind}/posts`), { withFileTypes: true })
+    .filter(entry => entry.isDirectory() && /^[a-z0-9-]+$/.test(entry.name))
+    .map(entry => {
+      const post = { slug: entry.name, kind, fr: parseFrontmatter(source(`${kind}/posts/${entry.name}`, "fr")), en: parseFrontmatter(source(`${kind}/posts/${entry.name}`, "en")) };
+      for (const lang of ["fr", "en"] as const) {
+        const meta = post[lang].meta;
+        if (!meta.title || !meta.date || !/^\d{4}-\d{2}-\d{2}$/.test(meta.date) || Number.isNaN(Date.parse(meta.date))) throw new Error(`Missing title or valid date: ${kind}/${entry.name}/${lang}`);
+      }
+      return post;
+    }).sort((a, b) => b.en.meta.date!.localeCompare(a.en.meta.date!));
 }
 
-function articleTemplate(kind: Kind, slug: string, fr: Document, en: Document): string {
-  const title = en.meta.title || fr.meta.title || "Rosas Behoundja";
-  const description = en.meta.description || fr.meta.description || title;
-  const url = `https://rosasbehoundja.github.io/pages/${kind}/articles/${slug}/`;
-  const isBlog = kind === "blog";
-  const dateFr = fr.meta.date_display || fr.meta.date || "";
-  const dateEn = en.meta.date_display || en.meta.date || "";
-  const socialImage = previewImage(kind, slug, fr, en);
-  const image = fr.meta.image || en.meta.image;
-  const imagePath = image?.replace("../../assets/", "/assets/").replace("../../content/", "/contents/");
-  const figure = imagePath ? `<figure class="my-6"><img src="${escape(imagePath)}" alt="${escape(fr.meta.image_alt || en.meta.image_alt)}" class="w-full sm:w-4/5 max-w-[550px] mx-auto rounded-lg"><figcaption class="mt-2 text-center italic text-neutral-500 text-xs"><span class="fr-text">${escape(fr.meta.image_caption)}</span><span class="en-text">${escape(en.meta.image_caption)}</span></figcaption></figure>` : "";
-  const backHref = isBlog ? "/pages/blog.html" : "/#news";
-  const backFr = isBlog ? "Retour aux articles" : "Retour aux actualités";
-  const backEn = isBlog ? "Back to articles" : "Back to news";
-  const draftFr = fr.meta.status === "draft" ? '<div class="blog-post-status fr-text">brouillon</div>' : "";
-  const draftEn = en.meta.status === "draft" ? '<div class="blog-post-status en-text">draft</div>' : "";
-
-  return `<!DOCTYPE html>
-<html lang="en" class="lang-en" prefix="og: https://ogp.me/ns# article: https://ogp.me/ns/article#">
-<head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escape(title)} — Rosas Behoundja</title>
-  <meta name="author" content="Rosas Behoundja"><meta name="robots" content="index, follow">
-  <meta name="description" content="${escape(description)}"><link rel="canonical" href="${url}">
-  <meta property="og:title" content="${escape(title)}"><meta property="og:type" content="article"><meta property="og:url" content="${url}"><meta property="og:description" content="${escape(description)}"><meta property="og:site_name" content="Rosas Behoundja"><meta property="og:locale" content="en_GB"><meta property="og:locale:alternate" content="fr_FR"><meta property="og:image" content="${escape(socialImage.url)}"><meta property="og:image:alt" content="${escape(socialImage.alt)}"><meta property="article:published_time" content="${escape(en.meta.date || fr.meta.date)}">
-  <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${escape(title)}"><meta name="twitter:description" content="${escape(description)}"><meta name="twitter:image" content="${escape(socialImage.url)}"><meta name="twitter:image:alt" content="${escape(socialImage.alt)}">
-</head>
-<body class="max-w-[820px] mx-auto px-4 sm:px-6 py-6 sm:py-10">
-  <nav class="site-nav border-b border-neutral-200 pb-4 mb-8"><div class="flex items-center justify-between"><div class="nav-links flex items-center gap-6 text-sm"><a href="/" class="sm:hidden">Rosas.</a><a href="/" class="hidden sm:inline">/ home</a><a href="/pages/work.html">/ work</a><a href="/pages/blog.html">/ blog</a></div><button class="lang-switch text-xs font-mono border border-neutral-200 px-2.5 py-1 rounded" id="langBtn">🇫🇷 FR</button></div></nav>
-  <main class="${isBlog ? "blog-post" : "flex flex-col"}" data-article>
-    <header class="mb-8">${draftFr}${draftEn}<time datetime="${escape(en.meta.date || fr.meta.date)}" class="block font-mono text-xs text-neutral-400 mb-2"><span class="fr-text">${escape(dateFr)}</span><span class="en-text">${escape(dateEn)}</span></time><h1 class="font-display text-2xl sm:text-3xl font-bold tracking-tight"><span class="fr-text">${escape(fr.meta.title)}</span><span class="en-text">${escape(en.meta.title)}</span></h1></header>
-    ${figure}<article class="fr-text markdown-body">${renderBody(fr.body, kind, slug)}</article><article class="en-text markdown-body">${renderBody(en.body, kind, slug)}</article>
-  </main>
-  <footer class="mt-16 pt-4 text-xs text-neutral-400 border-t border-dashed border-neutral-200"><p><a href="${backHref}">← <span class="fr-text">${backFr}</span><span class="en-text">${backEn}</span></a></p><p>© Rosas Behoundja 2026</p></footer>
-  <script type="module" src="/src/article.ts"></script>
-</body></html>`;
+function imageUrl(path: string, post: Post): string {
+  if (/^https?:\/\//.test(path)) return path;
+  const normalized = path.replace(/^\.\.\/\.\.\/(?:content|contents)\//, "/contents/").replace(/^\.\.\/\.\.\/assets\//, "/assets/");
+  return normalized.startsWith("/") ? `${siteUrl}${normalized}` : `${siteUrl}/contents/${post.kind}/posts/${post.slug}/${normalized}`;
 }
 
-function generateKind(kind: Kind): string[] {
-  const sourceDir = resolve(root, `contents/${kind}/posts`);
-  const slugs = readdirSync(sourceDir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && entry.name !== "posts_template")
-    .map((entry) => entry.name)
-    .filter((slug) => /^[a-z0-9-]+$/.test(slug));
-
-  for (const slug of slugs) {
-    const bundle = join(sourceDir, slug);
-    const fr = parse(readFileSync(join(bundle, "index.fr.md"), "utf8"));
-    const en = parse(readFileSync(join(bundle, "index.en.md"), "utf8"));
-    const output = resolve(root, `pages/${kind}/articles/${slug}/index.html`);
-    mkdirSync(dirname(output), { recursive: true });
-    writeFileSync(output, articleTemplate(kind, slug, fr, en));
-  }
-  return slugs;
+const blogPosts = posts("blog");
+const newsPosts = posts("news");
+for (const post of [...blogPosts, ...newsPosts]) {
+  const { kind, slug, fr, en } = post;
+  const path = `/pages/${kind}/articles/${slug}/`;
+  const title = en.meta.title!;
+  const preview = en.meta.preview_image || fr.meta.preview_image || en.meta.image || fr.meta.image;
+  const firstImage = markdown(en.body, post).match(/<img\b[^>]*src="([^"]+)"[^>]*>/)?.[0];
+  const previewPath = preview || firstImage?.match(/src="([^"]+)"/)?.[1];
+  const image = previewPath ? { url: imageUrl(previewPath, post), alt: en.meta.preview_image_alt || en.meta.image_alt || firstImage?.match(/alt="([^"]*)"/)?.[1] || title } : undefined;
+  const hero = fr.meta.image || en.meta.image;
+  const figure = hero ? imageAttributes(`<figure class="article-figure"><img src="${escape(imageUrl(hero, post).replace(siteUrl, ""))}" loading="eager" alt="${escape(en.meta.image_alt || fr.meta.image_alt)}"><figcaption>${localized(escape(fr.meta.image_caption), escape(en.meta.image_caption))}</figcaption></figure>`) : "";
+  const body = `<header class="page-header">
+    ${localized(fr.meta.status === "draft" ? '<span class="blog-post-status">brouillon</span>' : "", en.meta.status === "draft" ? '<span class="blog-post-status">draft</span>' : "")}
+    <time datetime="${en.meta.date}">${localized(escape(fr.meta.date_display || fr.meta.date), escape(en.meta.date_display || en.meta.date))}</time>
+    <h1>${localized(escape(fr.meta.title), escape(en.meta.title))}</h1>
+  </header>${figure}${(["fr", "en"] as const).map(lang => `<article class="${lang}-text markdown-body" lang="${lang}">${markdown(post[lang].body, post)}</article>`).join("")}`;
+  write(`${path}index.html`.slice(1), page({ title: `${title} — Rosas Behoundja`, description: en.meta.description || fr.meta.description || title, path, active: kind === "blog" ? "blog" : "home", article: true, date: en.meta.date, image, body,
+    footer: `<p><a href="${kind === "blog" ? "/pages/blog.html" : "/#news"}">← ${localized(kind === "blog" ? "Retour aux articles" : "Retour aux actualités", kind === "blog" ? "Back to articles" : "Back to news")}</a></p>` }));
 }
 
-const blogSlugs = generateKind("blog");
-const newsSlugs = generateKind("news");
-const blogPosts = blogSlugs.map((slug) => {
-  const bundle = resolve(root, `contents/blog/posts/${slug}`);
-  return {
-    slug,
-    fr: parse(readFileSync(join(bundle, "index.fr.md"), "utf8")).meta,
-    en: parse(readFileSync(join(bundle, "index.en.md"), "utf8")).meta,
-  };
-}).sort((a, b) => (b.en.date ?? "").localeCompare(a.en.date ?? ""));
-writeFileSync(resolve(root, "src/generated-content.ts"), `// Généré depuis contents/blog/posts — ne pas modifier.\nexport const blogPosts = ${JSON.stringify(blogPosts, null, 2)} as const;\n`);
-const today = new Date().toISOString().slice(0, 10);
-const urls = [
-  "",
-  "pages/work.html",
-  "pages/blog.html",
-  ...blogSlugs.map((slug) => `pages/blog/articles/${slug}/`),
-  ...newsSlugs.map((slug) => `pages/news/articles/${slug}/`),
-];
-writeFileSync(resolve(root, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map((path) => `  <url><loc>https://rosasbehoundja.github.io/${path}</loc><lastmod>${today}</lastmod></url>`).join("\n")}
-</urlset>\n`);
-console.log(`Pages générées : ${blogSlugs.length} billets, ${newsSlugs.length} actualités.`);
+function newsEntries(raw: string): Array<{ date: string; body: string }> {
+  const matches = [...raw.matchAll(/^###[ \t]+(.+?)[ \t]*$/gm)];
+  return matches.map((match, i) => ({ date: match[1]!, body: raw.slice(match.index! + match[0].length, matches[i + 1]?.index ?? raw.length).trim() }));
+}
+
+const news = (["fr", "en"] as const).map(lang => `<div class="${lang}-text" lang="${lang}">${newsEntries(source("pages/news", lang)).map(entry => entry.date.toUpperCase() === "MORE" ? markdown(entry.body) : `<div class="news-item"><span class="news-date">${escape(entry.date)}</span><div class="news-content markdown-body">${markdown(entry.body)}</div></div>`).join("")}</div>`).join("");
+
+write("index.html", page({ title: "Rosas Behoundja", description: "Rosas Behoundja's personal website: research, projects, and writing on combinatorial optimisation, machine learning, and responsible AI.", path: "/", active: "home", body: `
+  <header class="profile-header">
+    <img class="profile-photo" src="/assets/media/me/dli2.png" width="144" height="144" alt="Rosas Behoundja" fetchpriority="high">
+    <div><h1>Rosas Behoundja<span class="accent">.</span></h1>
+      <p class="greeting"><i lang="la">Per ardua ad astra</i></p>
+      ${socialLinks()}
+    </div>
+  </header>
+  <section><h2 class="section-title">${localized("à propos", "about")}</h2>${bilingual("pages/home")}</section>
+  <section id="news"><h2 class="section-title">${localized("récemment", "news")}</h2><div id="news-list">${news}</div></section>
+  <section id="beyond"><h2 class="section-title">${localized("et sinon", "besides that")}</h2>${bilingual("pages/beyond")}</section>` }));
+
+write("pages/work.html", page({ title: "Work — Rosas Behoundja", description: "Research, projects, and writing on combinatorial optimisation, machine learning, and responsible AI.", path: "/pages/work.html", active: "work", body: `<h1 class="sr-only">${localized("Travaux", "Work")}</h1><section id="view-work">${bilingual("pages/work").replace(/<h3>/g, "<h2>").replace(/<\/h3>/g, "</h2>")}</section>` }));
+
+const blog = (["fr", "en"] as const).map(lang => `<div class="${lang}-text" lang="${lang}">${blogPosts.map(post => {
+  const meta = post[lang].meta;
+  const date = new Intl.DateTimeFormat(lang === "fr" ? "fr-FR" : "en-GB", { year: "numeric", month: "short", day: "2-digit", timeZone: "UTC" }).format(new Date(meta.date!));
+  return `<article class="blog-entry"><time class="blog-date" datetime="${meta.date}">${escape(date)}</time><h2 class="blog-title"><a href="/pages/blog/articles/${post.slug}/">${escape(meta.title)}</a>${meta.status === "draft" ? `<span class="blog-draft">${lang === "fr" ? "brouillon" : "draft"}</span>` : ""}</h2></article>`;
+}).join("")}</div>`).join("");
+write("pages/blog.html", page({ title: "Blog — Rosas Behoundja", description: "Articles by Rosas Behoundja on combinatorial optimisation, constraint programming, machine learning, research, and life.", path: "/pages/blog.html", active: "blog", body: `<h1 class="sr-only">Blog</h1><div id="blog-list">${blog}</div>` }));
+
+// Preserve old incoming links; the client resolves historical query-string aliases.
+for (const kind of ["blog", "news"] as const) {
+  const path = `/pages/${kind}/${kind === "blog" ? "post" : "article"}.html`;
+  write(path.slice(1), page({ title: `${kind === "blog" ? "Blog" : "News"} — Rosas Behoundja`, description: "Research, projects, and writing on combinatorial optimisation, machine learning, and responsible AI.", path, active: kind === "blog" ? "blog" : "home", script: "legacy-article", body: `<h1>${kind === "blog" ? "Blog" : "News"}</h1><p><a href="${kind === "blog" ? "/pages/blog.html" : "/#news"}">← ${localized(kind === "blog" ? "Retour aux articles" : "Retour aux actualités", kind === "blog" ? "Back to articles" : "Back to news")}</a></p>` }));
+}
+write("pages/theme.html", page({ title: "Theme — Rosas Behoundja", description: "Articles by Rosas Behoundja on combinatorial optimisation, constraint programming, machine learning, research, and life.", path: "/pages/theme.html", active: "blog", body: `<h1>${localized("Thématiques", "Themes")}</h1><p><a href="/pages/blog.html">← ${localized("Retour au blog", "Back to blog")}</a></p>` }));
+
+const urls = ["/", "/pages/work.html", "/pages/blog.html", ...[...blogPosts, ...newsPosts].map(post => `/pages/${post.kind}/articles/${post.slug}/`)];
+write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(path => `  <url><loc>${siteUrl}${path}</loc></url>`).join("\n")}\n</urlset>\n`);
+console.log(`Generated all pages: ${blogPosts.length} blog posts, ${newsPosts.length} news articles.`);

@@ -12,7 +12,6 @@ const aliases: Record<string, string> = isBlog ? {
   "end-internship-lrsia-2026": "2026-06-19-end-internship-lrsia",
   "world-backup-day-2026": "2026-03-31-world-backup-day",
   "start-internship-lrsia-2026": "2026-02-16-start-internship-lrsia",
-  "retrospective-2025": "2026-01-26-retrospective-2025",
 };
 const slug = aliases[requested] ?? requested;
 if (/^[a-z0-9-]+$/.test(slug)) {

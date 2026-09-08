@@ -13,8 +13,8 @@ Things that keep me [sane](https://dictionary.cambridge.org/dictionary/english/s
 * playing volleyball or tabletop games with family, friends and coworkers.
 * eating good food and drinking good fruit juice.
 
-Get to know more about my recent activities on my [news page](/pages/news/). You can also check out my [blog](/pages/blog/).
+Get to know more about my recent activities on my [news page](/pages/news/). You can also check out my [blog](/pages/blog.html).
 
-Download my resume [here](assets/media/resume.pdf).
+Download my resume [here](/assets/cv/Rosas_Behoundja_Resume.pdf).
 
 [Github](https://github.com/rosasbehoundja), [LinkedIn](https://linkedin.com/in/rosasbehoundja)

@@ -14,8 +14,8 @@ Ce qui m'aide à rester [sain d'esprit](https://dictionary.cambridge.org/diction
 * jouer au volleyball ou à des jeux de société avec ma famille, mes amis et mes collègues.
 * manger de bons plats et boire de bons jus de fruits.
 
-Pour en savoir plus sur mes activités récentes, consultez ma [page d'actualités](/pages/news/). Vous pouvez également jeter un œil à mon [blog](/pages/blog/).
+Pour en savoir plus sur mes activités récentes, consultez ma [page d'actualités](/pages/news/). Vous pouvez également jeter un œil à mon [blog](/pages/blog.html).
 
-Téléchargez mon CV [ici](assets/media/resume.pdf).
+Téléchargez mon CV [ici](/assets/cv/Rosas_Behoundja_Resume.pdf).
 
 [Github](https://github.com/rosasbehoundja), [LinkedIn](https://linkedin.com/in/rosasbehoundja)

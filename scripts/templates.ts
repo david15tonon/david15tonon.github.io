@@ -1,20 +1,5 @@
 export type Language = "fr" | "en";
-export type Section = "home" | "work" | "blog";
-
-import { faGithub, faLinkedin } from "@fortawesome/free-brands-svg-icons";
-import { faEnvelope, faFilePdf } from "@fortawesome/free-solid-svg-icons";
-
-export function socialLinks(): string {
-  return `<div class="profile-socials">${[
-    { label: "Email", href: "mailto:perrierosas@gmail.com", icon: faEnvelope },
-    { label: "LinkedIn", href: "https://linkedin.com/in/rosasbehoundja", icon: faLinkedin },
-    { label: "GitHub", href: "https://github.com/rosasbehoundja", icon: faGithub },
-    { label: "CV / Resume (PDF)", href: "/assets/cv/Rosas_Behoundja_Resume.pdf", icon: faFilePdf, text: "CV" },
-  ].map(({ label, href, icon, text }) => {
-    const [width, height, , , paths] = icon.icon;
-    return `<a href="${href}"${text ? ' class="profile-cv"' : ""} aria-label="${label}" title="${label}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" aria-hidden="true" focusable="false">${(Array.isArray(paths) ? paths : [paths]).map(path => `<path fill="currentColor" d="${path}"/>`).join("")}</svg>${text ? `<span>${text}</span>` : ""}</a>`;
-  }).join("")}</div>`;
-}
+export type Section = "home" | "news" | "work" | "blog";
 
 export function escape(value = ""): string {
   return value.replace(/[&<>'"]/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character]!);
@@ -27,7 +12,7 @@ export function localized(fr: string, en: string): string {
 export function navigation(active: Section): string {
   return `<a class="skip-link" href="#main">${localized("Aller au contenu", "Skip to content")}</a>
   <nav class="site-nav" aria-label="Main">
-    <div class="nav-links">${(["home", "work", "blog"] as const).map(section => `<a href="${section === "home" ? "/" : `/pages/${section}.html`}"${section === active ? ' aria-current="page"' : ""}>/ ${section}</a>`).join("")}</div>
+    <div class="nav-links">${(["home", "news", "work", "blog"] as const).map(section => `<a href="${section === "home" ? "/" : section === "news" ? "/pages/news/" : `/pages/${section}.html`}"${section === active ? ' aria-current="page"' : ""}>${section}</a>`).join("")}</div>
     <button class="lang-switch" id="langBtn" type="button" hidden aria-label="Passer en français">FR</button>
   </nav>`;
 }

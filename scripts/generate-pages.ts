@@ -2,7 +2,7 @@ import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { marked } from "marked";
 import sharp from "sharp";
-import { escape, localized, page, socialLinks } from "./templates.ts";
+import { escape, localized, page } from "./templates.ts";
 import type { Language } from "./templates.ts";
 import { parseFrontmatter } from "../src/content.ts";
 
@@ -99,8 +99,8 @@ for (const post of [...blogPosts, ...newsPosts]) {
     <time datetime="${en.meta.date}">${localized(escape(fr.meta.date_display || fr.meta.date), escape(en.meta.date_display || en.meta.date))}</time>
     <h1>${localized(escape(fr.meta.title), escape(en.meta.title))}</h1>
   </header>${figure}${(["fr", "en"] as const).map(lang => `<article class="${lang}-text markdown-body" lang="${lang}">${markdown(post[lang].body, post)}</article>`).join("")}`;
-  write(`${path}index.html`.slice(1), page({ title: `${title} — Rosas Behoundja`, description: en.meta.description || fr.meta.description || title, path, active: kind === "blog" ? "blog" : "home", article: true, date: en.meta.date, image, body,
-    footer: `<p><a href="${kind === "blog" ? "/pages/blog.html" : "/#news"}">← ${localized(kind === "blog" ? "Retour aux articles" : "Retour aux actualités", kind === "blog" ? "Back to articles" : "Back to news")}</a></p>` }));
+  write(`${path}index.html`.slice(1), page({ title: `${title} — Rosas Behoundja`, description: en.meta.description || fr.meta.description || title, path, active: kind === "blog" ? "blog" : "news", article: true, date: en.meta.date, image, body,
+    footer: `<p><a href="${kind === "blog" ? "/pages/blog.html" : "/pages/news/"}">← ${localized(kind === "blog" ? "Retour aux articles" : "Retour aux actualités", kind === "blog" ? "Back to articles" : "Back to news")}</a></p>` }));
 }
 
 function newsEntries(raw: string): Array<{ date: string; body: string }> {
@@ -108,19 +108,19 @@ function newsEntries(raw: string): Array<{ date: string; body: string }> {
   return matches.map((match, i) => ({ date: match[1]!, body: raw.slice(match.index! + match[0].length, matches[i + 1]?.index ?? raw.length).trim() }));
 }
 
-const news = (["fr", "en"] as const).map(lang => `<div class="${lang}-text" lang="${lang}">${newsEntries(source("pages/news", lang)).map(entry => entry.date.toUpperCase() === "MORE" ? markdown(entry.body) : `<div class="news-item"><span class="news-date">${escape(entry.date)}</span><div class="news-content markdown-body">${markdown(entry.body)}</div></div>`).join("")}</div>`).join("");
+const news = (["fr", "en"] as const).map(lang => `<div class="${lang}-text" lang="${lang}">${newsEntries(source("pages/news", lang)).map(entry => entry.date.toUpperCase() === "MORE" ? `<div class="markdown-body">${markdown(entry.body)}</div>` : `<div class="news-item"><span class="news-date">${escape(entry.date)}</span><div class="news-content markdown-body">${markdown(entry.body)}</div></div>`).join("")}</div>`).join("");
 
 write("index.html", page({ title: "Rosas Behoundja", description: "Rosas Behoundja's personal website: research, projects, and writing on combinatorial optimisation, machine learning, and responsible AI.", path: "/", active: "home", body: `
   <header class="profile-header">
-    <img class="profile-photo" src="/assets/media/me/dli2.png" width="144" height="144" alt="Rosas Behoundja" fetchpriority="high">
-    <div><h1>Rosas Behoundja<span class="accent">.</span></h1>
-      <p class="greeting"><i lang="la">Per ardua ad astra</i></p>
-      ${socialLinks()}
-    </div>
+    <h1>Rosas Behoundja<span class="accent">.</span></h1>
+    <details class="profile-portrait">
+      <summary><img class="profile-photo" src="/assets/media/me/looklikeme.jpg" width="144" height="144" alt="GPT said I look like this" title="GPT said I look like this" fetchpriority="high"></summary>
+      <p class="profile-photo-caption">GPT said I look like this</p>
+    </details>
   </header>
-  <section><h2 class="section-title">${localized("à propos", "about")}</h2>${bilingual("pages/home")}</section>
-  <section id="news"><h2 class="section-title">${localized("récemment", "news")}</h2><div id="news-list">${news}</div></section>
-  <section id="beyond"><h2 class="section-title">${localized("et sinon", "besides that")}</h2>${bilingual("pages/beyond")}</section>` }));
+  <section>${bilingual("pages/home")}</section>` }));
+
+write("pages/news/index.html", page({ title: "News — Rosas Behoundja", description: "Recent activities and milestones from Rosas Behoundja.", path: "/pages/news/", active: "news", body: `<div id="news-list">${news}</div>` }));
 
 write("pages/work.html", page({ title: "Work — Rosas Behoundja", description: "Research, projects, and writing on combinatorial optimisation, machine learning, and responsible AI.", path: "/pages/work.html", active: "work", body: `<h1 class="sr-only">${localized("Travaux", "Work")}</h1><section id="view-work">${bilingual("pages/work").replace(/<h3>/g, "<h2>").replace(/<\/h3>/g, "</h2>")}</section>` }));
 
@@ -134,10 +134,10 @@ write("pages/blog.html", page({ title: "Blog — Rosas Behoundja", description: 
 // Preserve old incoming links; the client resolves historical query-string aliases.
 for (const kind of ["blog", "news"] as const) {
   const path = `/pages/${kind}/${kind === "blog" ? "post" : "article"}.html`;
-  write(path.slice(1), page({ title: `${kind === "blog" ? "Blog" : "News"} — Rosas Behoundja`, description: "Research, projects, and writing on combinatorial optimisation, machine learning, and responsible AI.", path, active: kind === "blog" ? "blog" : "home", script: "legacy-article", body: `<h1>${kind === "blog" ? "Blog" : "News"}</h1><p><a href="${kind === "blog" ? "/pages/blog.html" : "/#news"}">← ${localized(kind === "blog" ? "Retour aux articles" : "Retour aux actualités", kind === "blog" ? "Back to articles" : "Back to news")}</a></p>` }));
+  write(path.slice(1), page({ title: `${kind === "blog" ? "Blog" : "News"} — Rosas Behoundja`, description: "Research, projects, and writing on combinatorial optimisation, machine learning, and responsible AI.", path, active: kind, script: "legacy-article", body: `<h1>${kind === "blog" ? "Blog" : "News"}</h1><p><a href="${kind === "blog" ? "/pages/blog.html" : "/pages/news/"}">← ${localized(kind === "blog" ? "Retour aux articles" : "Retour aux actualités", kind === "blog" ? "Back to articles" : "Back to news")}</a></p>` }));
 }
 write("pages/theme.html", page({ title: "Theme — Rosas Behoundja", description: "Articles by Rosas Behoundja on combinatorial optimisation, constraint programming, machine learning, research, and life.", path: "/pages/theme.html", active: "blog", body: `<h1>${localized("Thématiques", "Themes")}</h1><p><a href="/pages/blog.html">← ${localized("Retour au blog", "Back to blog")}</a></p>` }));
 
-const urls = ["/", "/pages/work.html", "/pages/blog.html", ...[...blogPosts, ...newsPosts].map(post => `/pages/${post.kind}/articles/${post.slug}/`)];
+const urls = ["/", "/pages/work.html", "/pages/blog.html", "/pages/news/", ...[...blogPosts, ...newsPosts].map(post => `/pages/${post.kind}/articles/${post.slug}/`)];
 write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(path => `  <url><loc>${siteUrl}${path}</loc></url>`).join("\n")}\n</urlset>\n`);
 console.log(`Generated all pages: ${blogPosts.length} blog posts, ${newsPosts.length} news articles.`);

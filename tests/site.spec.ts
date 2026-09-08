@@ -34,7 +34,7 @@ test("every published page has usable landmarks, local assets and accessible mar
   for (const route of routes) {
     await page.goto(route);
     await expect(page.locator("main")).toBeVisible();
-    await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveCount(route === "/pages/news/" ? 0 : 1);
     await expect(page.locator('nav a[aria-current="page"]')).toHaveCount(1);
     const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
     expect(results.violations, route).toEqual([]);
@@ -50,11 +50,33 @@ test("all pages retain their main content and navigation without JavaScript", as
     await expect(page.locator("main")).not.toBeEmpty();
     await expect(page.locator('nav a[href="/pages/work.html"]')).toBeVisible();
     await expect(page.locator("#langBtn")).toBeHidden();
-    if (route === "/") await expect(page.locator("main")).toContainText("computer science undergrad");
+    if (route === "/") {
+      await expect(page.locator("main")).toContainText("bachelor's in computer science");
+      await expect(page.locator("#news, #beyond, .section-title")).toHaveCount(0);
+    }
+    if (route === "/pages/news/") {
+      await expect(page.locator("#news-list > .en-text .news-item")).toHaveCount(20);
+      await expect(page.locator("main")).toContainText("first public talk");
+    }
     if (route === "/pages/blog.html") await expect(page.locator(".en-text .blog-entry")).toHaveCount(routes.filter(path => path.startsWith("/pages/blog/articles/")).length);
     if (route === "/pages/work.html") await expect(page.locator("main")).toContainText("Research Intern");
   }
   await context.close();
+});
+
+test("navigation labels do not start with a slash", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator(".nav-links")).toHaveText("homenewsworkblog");
+});
+
+test("profile portrait reveals its description when clicked", async ({ page }) => {
+  await page.goto("/");
+  const portrait = page.locator(".profile-portrait");
+  const image = portrait.locator("img");
+  await expect(image).toHaveAttribute("title", "GPT said I look like this");
+  await image.click();
+  await expect(portrait).toHaveAttribute("open", "");
+  await expect(portrait.locator(".profile-photo-caption")).toBeVisible();
 });
 
 test("English and French persist across navigation; keyboard skip link works", async ({ page }) => {
@@ -96,7 +118,7 @@ test("code buttons are anchored, copy successfully, and report clipboard failure
 test("layouts fit narrow and wide screens in both languages", async ({ page }) => {
   for (const width of [320, 390, 820, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const route of ["/", "/pages/work.html", "/pages/blog.html", codeArticle, "/pages/blog/articles/2026-08-23-dli-return/"]) {
+    for (const route of ["/", "/pages/news/", "/pages/work.html", "/pages/blog.html", codeArticle, "/pages/blog/articles/2026-08-23-dli-return/"]) {
       await page.goto(route);
       await page.evaluate(() => document.fonts.ready);
       for (let language = 0; language < 2; language++) {

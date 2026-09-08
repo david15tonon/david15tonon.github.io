@@ -1,9 +1,20 @@
 Hello, fellow human :>
 
-I'm a computer science undergrad at IFRI, University of Abomey-Calavi, in [Benin](https://www.benin.bj/en) 🇧🇯, grateful to be advised by Dr. [Vinasétan Ratheil Houndji](https://ratheilh.github.io).
+I'm completing my bachelor's in computer science at University of Abomey-Calavi, in [Benin](https://www.benin.bj/en) 🇧🇯, working with Dr. [Vinasétan Ratheil Houndji](https://ratheilh.github.io). I'll graduate this fall.
 
-I play across several fields — apparently, choosing just one would have been too easy. My main interests lie in solving industrial planning and scheduling problems using **combinatorial optimization and machine learning**, as well as in **speech and language processing** for low-resource languages, particularly Fon.
+My current research involves modeling planning and routing problems with combinatorial optimization techniques. [MPVRP-CC](https://ifri-ai-classes.github.io/MPVRP-CC/) is my focus at the moment.
 
-These interests are not boundaries. In my free time, I also enjoy exploring whatever catches my curiosity.
+In my free time, I enjoy exploring whatever catches my curiosity.
 
-I'm always happy to chat about research or otherwise — feel free to reach out and [say hi](mailto:perrierosas@gmail.com)!
+I'm the one who sends cold emails to people whose work I read and admire. But if you want to reach out to me, feel free to do so. I will be happy to answer your questions and discuss any topic I feel comfortable with. You can reach me at [perrierosas [at] gmail.com](mailto:perrierosas@gmail.com).
+
+Things that keep me [sane](https://dictionary.cambridge.org/dictionary/english/sane):
+* walking, traveling.
+* playing volleyball or tabletop games with family, friends and coworkers.
+* eating good food and drinking good fruit juice.
+
+Get to know more about my recent activities on my [news page](/pages/news/). You can also check out my [blog](/pages/blog/).
+
+Download my resume [here](assets/media/resume.pdf).
+
+[Github](https://github.com/rosasbehoundja), [LinkedIn](https://linkedin.com/in/rosasbehoundja)

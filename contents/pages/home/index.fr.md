@@ -1,5 +1,7 @@
 Salut, camarade humain :>
 
+<p>Je suis <span class="bio-portrait"><button class="bio-name" type="button" aria-label="Rosas — afficher un aperçu de la photo">Rosas</button><span class="bio-photo-preview" role="tooltip"><img src="/assets/media/me/looklikeme.jpg" alt="GPT a dit que je ressemblais à ceci"></span></span>.</p>
+
 Je termine actuellement ma licence en informatique à l'Université d'Abomey-Calavi, au [Bénin](https://www.benin.bj/en) 🇧🇯, sous la supervision du Dr [Vinasétan Ratheil Houndji](https://ratheilh.github.io). J'obtiendrai mon diplôme bientôt.
 
 Mes recherches actuelles portent sur la modélisation de problèmes de planification et de routage à l'aide de techniques d'optimisation combinatoire. [MPVRP-CC](https://ifri-ai-classes.github.io/MPVRP-CC/) est mon principal sujet d'étude en ce moment.

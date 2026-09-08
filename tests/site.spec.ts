@@ -25,6 +25,13 @@ test("every local link and media reference exists in the production output", () 
   }
 });
 
+test("generated pages include the site favicon bundle", () => {
+  const home = readFileSync("index.html", "utf8");
+  expect(home).toContain('/assets/media/favicon_io/favicon.ico');
+  expect(home).toContain('/assets/media/favicon_io/apple-touch-icon.png');
+  expect(home).toContain('/assets/media/favicon_io/site.webmanifest');
+});
+
 test("every published page has usable landmarks, local assets and accessible markup", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", error => errors.push(error.message));
@@ -69,14 +76,17 @@ test("navigation labels do not start with a slash", async ({ page }) => {
   await expect(page.locator(".nav-links")).toHaveText("homenewsworkblog");
 });
 
-test("profile portrait reveals its description when clicked", async ({ page }) => {
+test("inline name reveals the portrait preview when clicked", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 780 });
   await page.goto("/");
-  const portrait = page.locator(".profile-portrait");
-  const image = portrait.locator("img");
-  await expect(image).toHaveAttribute("title", "GPT said I look like this");
-  await image.click();
-  await expect(portrait).toHaveAttribute("open", "");
-  await expect(portrait.locator(".profile-photo-caption")).toBeVisible();
+  await expect(page.locator(".profile-header")).toHaveCount(0);
+  const name = page.locator(".en-text .bio-name");
+  await name.click();
+  await expect(page.locator(".en-text .bio-photo-preview")).toBeVisible();
+  const image = page.locator(".en-text .bio-photo-preview img");
+  await expect(image).toHaveAttribute("alt", "GPT said I look like this");
+  expect(await image.evaluate(element => getComputedStyle(element).aspectRatio)).toBe("1013 / 760");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
 test("English and French persist across navigation; keyboard skip link works", async ({ page }) => {
@@ -113,6 +123,17 @@ test("code buttons are anchored, copy successfully, and report clipboard failure
   const frenchPre = page.locator("article.fr-text pre").first();
   await frenchPre.getByRole("button").click();
   await expect(frenchPre.getByRole("status")).toContainText("Copie impossible");
+});
+
+test("article return link sits above the title and not in the footer", async ({ page }) => {
+  await page.goto(codeArticle);
+  const back = page.locator("main > .article-back");
+  await expect(back).toHaveAttribute("href", "/pages/blog.html");
+  await expect(back).toContainText("Back to articles");
+  await expect(page.locator("footer .article-back, footer a[href='/pages/blog.html']")).toHaveCount(0);
+  const backBox = await back.boundingBox();
+  const titleBox = await page.locator(".page-header h1").boundingBox();
+  expect(backBox!.y + backBox!.height).toBeLessThan(titleBox!.y);
 });
 
 test("layouts fit narrow and wide screens in both languages", async ({ page }) => {

@@ -94,13 +94,15 @@ for (const post of [...blogPosts, ...newsPosts]) {
   const image = previewPath ? { url: imageUrl(previewPath, post), alt: en.meta.preview_image_alt || en.meta.image_alt || firstImage?.match(/alt="([^"]*)"/)?.[1] || title } : undefined;
   const hero = fr.meta.image || en.meta.image;
   const figure = hero ? imageAttributes(`<figure class="article-figure"><img src="${escape(imageUrl(hero, post).replace(siteUrl, ""))}" loading="eager" alt="${escape(en.meta.image_alt || fr.meta.image_alt)}"><figcaption>${localized(escape(fr.meta.image_caption), escape(en.meta.image_caption))}</figcaption></figure>`) : "";
-  const body = `<header class="page-header">
+  const backUrl = kind === "blog" ? "/pages/blog.html" : "/pages/news/";
+  const backLabel = localized(kind === "blog" ? "Retour aux articles" : "Retour aux actualités", kind === "blog" ? "Back to articles" : "Back to news");
+  const body = `<a class="article-back" href="${backUrl}"><svg viewBox="0 0 28 20" aria-hidden="true"><path d="M11 3 4 10l7 7M5 10h11c5 0 8-2.5 8-7"/></svg>${backLabel}</a>
+  <header class="page-header">
     ${localized(fr.meta.status === "draft" ? '<span class="blog-post-status">brouillon</span>' : "", en.meta.status === "draft" ? '<span class="blog-post-status">draft</span>' : "")}
     <time datetime="${en.meta.date}">${localized(escape(fr.meta.date_display || fr.meta.date), escape(en.meta.date_display || en.meta.date))}</time>
     <h1>${localized(escape(fr.meta.title), escape(en.meta.title))}</h1>
   </header>${figure}${(["fr", "en"] as const).map(lang => `<article class="${lang}-text markdown-body" lang="${lang}">${markdown(post[lang].body, post)}</article>`).join("")}`;
-  write(`${path}index.html`.slice(1), page({ title: `${title} — Rosas Behoundja`, description: en.meta.description || fr.meta.description || title, path, active: kind === "blog" ? "blog" : "news", article: true, date: en.meta.date, image, body,
-    footer: `<p><a href="${kind === "blog" ? "/pages/blog.html" : "/pages/news/"}">← ${localized(kind === "blog" ? "Retour aux articles" : "Retour aux actualités", kind === "blog" ? "Back to articles" : "Back to news")}</a></p>` }));
+  write(`${path}index.html`.slice(1), page({ title: `${title} — Rosas Behoundja`, description: en.meta.description || fr.meta.description || title, path, active: kind === "blog" ? "blog" : "news", article: true, date: en.meta.date, image, body }));
 }
 
 function newsEntries(raw: string): Array<{ date: string; body: string }> {
@@ -111,13 +113,7 @@ function newsEntries(raw: string): Array<{ date: string; body: string }> {
 const news = (["fr", "en"] as const).map(lang => `<div class="${lang}-text" lang="${lang}">${newsEntries(source("pages/news", lang)).map(entry => entry.date.toUpperCase() === "MORE" ? `<div class="markdown-body">${markdown(entry.body)}</div>` : `<div class="news-item"><span class="news-date">${escape(entry.date)}</span><div class="news-content markdown-body">${markdown(entry.body)}</div></div>`).join("")}</div>`).join("");
 
 write("index.html", page({ title: "Rosas Behoundja", description: "Rosas Behoundja's personal website: research, projects, and writing on combinatorial optimisation, machine learning, and responsible AI.", path: "/", active: "home", body: `
-  <header class="profile-header">
-    <h1>Rosas Behoundja<span class="accent">.</span></h1>
-    <details class="profile-portrait">
-      <summary><img class="profile-photo" src="/assets/media/me/looklikeme.jpg" width="144" height="144" alt="GPT said I look like this" title="GPT said I look like this" fetchpriority="high"></summary>
-      <p class="profile-photo-caption">GPT said I look like this</p>
-    </details>
-  </header>
+  <h1 class="sr-only">Rosas Behoundja</h1>
   <section>${bilingual("pages/home")}</section>` }));
 
 write("pages/news/index.html", page({ title: "News — Rosas Behoundja", description: "Recent activities and milestones from Rosas Behoundja.", path: "/pages/news/", active: "news", body: `<div id="news-list">${news}</div>` }));

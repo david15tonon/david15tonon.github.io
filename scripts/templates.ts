@@ -34,7 +34,7 @@ interface Page {
 // URL-prefix property on https://search.google.com/search-console, pick the "HTML tag"
 // method, and paste the content value of the meta tag Google shows here. While this is
 // empty no meta tag is emitted.
-const googleSiteVerification = "DIGARQa0cZEWTA25ltl9OHfVvDqpoHn13mhDJMv9sx0";
+const googleSiteVerification = "_AfjfkxwBUT7mQ70wCVjLW5sedr-JdGzLfFhZkwJyik";
 
 export function page(options: Page): string {
   const url = `https://david15tonon.github.io${options.path}`;

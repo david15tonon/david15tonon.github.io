@@ -120,7 +120,7 @@ function newsEntries(raw: string): Array<{ date: string; body: string }> {
 
 const news = (["fr", "en"] as const).map(lang => `<div class="${lang}-text" lang="${lang}">${orComingSoon(newsEntries(source("pages/news", lang)).map(entry => entry.date.toUpperCase() === "MORE" ? `<div class="markdown-body">${markdown(entry.body)}</div>` : `<div class="news-item"><span class="news-date">${escape(entry.date)}</span><div class="news-content markdown-body">${markdown(entry.body)}</div></div>`).join(""), lang)}</div>`).join("");
 
-write("index.html", page({ title: "David Tonon", description: "David Tonon's personal website: research, machine learning, biomedical applications, and writing.", path: "/", active: "home", body: `
+write("index.html", page({ title: "David Tonon", description: "David Tonon's personal website: research, machine learning, AI engineering, and writing.", path: "/", active: "home", body: `
   <h1 class="sr-only">David Tonon</h1>
   <section>${bilingual("pages/home")}</section>` }));
 

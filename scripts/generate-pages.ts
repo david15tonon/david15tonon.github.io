@@ -126,21 +126,21 @@ write("index.html", page({ title: "David Tonon", description: "David Tonon's per
 
 write("pages/news/index.html", page({ title: "News — David Tonon", description: "Recent activities and milestones from David Tonon.", path: "/pages/news/", active: "news", body: `<div id="news-list">${news}</div>` }));
 
-write("pages/work.html", page({ title: "Work — David Tonon", description: "Research, projects, and writing by David Tonon on machine learning and biomedical applications.", path: "/pages/work.html", active: "work", body: `<h1 class="sr-only">${localized("Travaux", "Work")}</h1><section id="view-work">${bilingual("pages/work").replace(/<h3>/g, "<h2>").replace(/<\/h3>/g, "</h2>")}</section>` }));
+write("pages/work.html", page({ title: "Work — David Tonon", description: "Research, projects, and writing by David Tonon on machine learning and AI engineering.", path: "/pages/work.html", active: "work", body: `<h1 class="sr-only">${localized("Travaux", "Work")}</h1><section id="view-work">${bilingual("pages/work").replace(/<h3>/g, "<h2>").replace(/<\/h3>/g, "</h2>")}</section>` }));
 
 const blog = (["fr", "en"] as const).map(lang => `<div class="${lang}-text" lang="${lang}">${orComingSoon(blogPosts.map(post => {
   const meta = post[lang].meta;
   const date = new Intl.DateTimeFormat(lang === "fr" ? "fr-FR" : "en-GB", { year: "numeric", month: "short", day: "2-digit", timeZone: "UTC" }).format(new Date(meta.date!));
   return `<article class="blog-entry"><time class="blog-date" datetime="${meta.date}">${escape(date)}</time><h2 class="blog-title"><a href="/pages/blog/articles/${post.slug}/">${escape(meta.title)}</a>${meta.status === "draft" ? `<span class="blog-draft">${lang === "fr" ? "brouillon" : "draft"}</span>` : ""}</h2></article>`;
 }).join(""), lang)}</div>`).join("");
-write("pages/blog.html", page({ title: "Blog — David Tonon", description: "Articles by David Tonon on machine learning, biomedical applications, research, and life.", path: "/pages/blog.html", active: "blog", body: `<h1 class="sr-only">Blog</h1><div id="blog-list">${blog}</div>` }));
+write("pages/blog.html", page({ title: "Blog — David Tonon", description: "Articles by David Tonon on machine learning, AI engineering, research, and life.", path: "/pages/blog.html", active: "blog", body: `<h1 class="sr-only">Blog</h1><div id="blog-list">${blog}</div>` }));
 
 // Preserve old incoming links; the client resolves historical query-string aliases.
 for (const kind of ["blog", "news"] as const) {
   const path = `/pages/${kind}/${kind === "blog" ? "post" : "article"}.html`;
-  write(path.slice(1), page({ title: `${kind === "blog" ? "Blog" : "News"} — David Tonon`, description: "Research, projects, and writing by David Tonon on machine learning, biomedical applications, and life.", path, active: kind, script: "legacy-article", body: `<h1>${kind === "blog" ? "Blog" : "News"}</h1><p><a href="${kind === "blog" ? "/pages/blog.html" : "/pages/news/"}">← ${localized(kind === "blog" ? "Retour aux articles" : "Retour aux actualités", kind === "blog" ? "Back to articles" : "Back to news")}</a></p>` }));
+  write(path.slice(1), page({ title: `${kind === "blog" ? "Blog" : "News"} — David Tonon`, description: "Research, projects, and writing by David Tonon on machine learning, AI engineering, and life.", path, active: kind, script: "legacy-article", body: `<h1>${kind === "blog" ? "Blog" : "News"}</h1><p><a href="${kind === "blog" ? "/pages/blog.html" : "/pages/news/"}">← ${localized(kind === "blog" ? "Retour aux articles" : "Retour aux actualités", kind === "blog" ? "Back to articles" : "Back to news")}</a></p>` }));
 }
-write("pages/theme.html", page({ title: "Theme — David Tonon", description: "Articles by David Tonon on machine learning, biomedical applications, research, and life.", path: "/pages/theme.html", active: "blog", body: `<h1>${localized("Thématiques", "Themes")}</h1><p><a href="/pages/blog.html">← ${localized("Retour au blog", "Back to blog")}</a></p>` }));
+write("pages/theme.html", page({ title: "Theme — David Tonon", description: "Articles by David Tonon on machine learning, AI engineering, research, and life.", path: "/pages/theme.html", active: "blog", body: `<h1>${localized("Thématiques", "Themes")}</h1><p><a href="/pages/blog.html">← ${localized("Retour au blog", "Back to blog")}</a></p>` }));
 
 const urls = ["/", "/pages/work.html", "/pages/blog.html", "/pages/news/", ...[...blogPosts, ...newsPosts].map(post => `/pages/${post.kind}/articles/${post.slug}/`)];
 write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(path => `  <url><loc>${siteUrl}${path}</loc></url>`).join("\n")}\n</urlset>\n`);

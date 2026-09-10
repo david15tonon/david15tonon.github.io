@@ -9,7 +9,7 @@ import "../assets/css/style.css";
 
 export type SiteLanguage = "fr" | "en";
 
-const LANGUAGE_STORAGE_KEY = "rosas-site-language";
+const LANGUAGE_STORAGE_KEY = "site-language";
 
 export function currentLanguage(): SiteLanguage {
   return document.documentElement.classList.contains("lang-fr") ? "fr" : "en";

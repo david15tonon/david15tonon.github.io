@@ -3,8 +3,16 @@ import AxeBuilder from "@axe-core/playwright";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 
-const routes = [...readFileSync("sitemap.xml", "utf8").matchAll(/<loc>https:\/\/rosasbehoundja.github.io([^<]+)<\/loc>/g)].map(match => match[1]!);
-const codeArticle = "/pages/blog/articles/2026-08-10-minizinc-modeling/";
+const routes = [...readFileSync("sitemap.xml", "utf8").matchAll(/<loc>https:\/\/david15tonon.github.io([^<]+)<\/loc>/g)].map(match => match[1]!);
+const blogArticles = routes.filter(path => path.startsWith("/pages/blog/articles/"));
+
+function built(route: string): string {
+  return readFileSync(resolve("dist", `.${route}index.html`), "utf8");
+}
+
+// Article-level checks need real content; they are skipped while the blog is empty.
+const anyArticle = blogArticles[0];
+const codeArticle = blogArticles.find(route => built(route).includes("<pre>"));
 
 test("every local link and media reference exists in the production output", () => {
   function htmlFiles(directory: string): string[] {
@@ -27,9 +35,9 @@ test("every local link and media reference exists in the production output", () 
 
 test("generated pages include the site favicon bundle", () => {
   const home = readFileSync("index.html", "utf8");
-  expect(home).toContain('/assets/media/favicon_io/favicon.ico');
-  expect(home).toContain('/assets/media/favicon_io/apple-touch-icon.png');
-  expect(home).toContain('/assets/media/favicon_io/site.webmanifest');
+  expect(home).toContain("/assets/media/favicon_io/favicon.ico");
+  expect(home).toContain("/assets/media/favicon_io/apple-touch-icon.png");
+  expect(home).toContain("/assets/media/favicon_io/site.webmanifest");
 });
 
 test("every published page has usable landmarks, local assets and accessible markup", async ({ page }) => {
@@ -42,7 +50,7 @@ test("every published page has usable landmarks, local assets and accessible mar
     await page.goto(route);
     await expect(page.locator("main")).toBeVisible();
     await expect(page.getByRole("heading", { level: 1 })).toHaveCount(route === "/pages/news/" ? 0 : 1);
-    await expect(page.locator('nav a[aria-current="page"]')).toHaveCount(1);
+    await expect(page.locator("nav a[aria-current=\"page\"]")).toHaveCount(1);
     const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
     expect(results.violations, route).toEqual([]);
   }
@@ -55,18 +63,20 @@ test("all pages retain their main content and navigation without JavaScript", as
   for (const route of routes) {
     await page.goto(`http://127.0.0.1:4173${route}`);
     await expect(page.locator("main")).not.toBeEmpty();
-    await expect(page.locator('nav a[href="/pages/work.html"]')).toBeVisible();
+    await expect(page.locator("nav a[href=\"/pages/work.html\"]")).toBeVisible();
     await expect(page.locator("#langBtn")).toBeHidden();
     if (route === "/") {
-      await expect(page.locator("main")).toContainText("bachelor's in computer science");
+      // Both language variants ship in the HTML before any script runs.
+      await expect(page.locator("main > section > .fr-text")).toHaveCount(1);
+      await expect(page.locator("main > section > .en-text")).toHaveCount(1);
       await expect(page.locator("#news, #beyond, .section-title")).toHaveCount(0);
     }
     if (route === "/pages/news/") {
-      await expect(page.locator("#news-list > .en-text .news-item")).toHaveCount(20);
-      await expect(page.locator("main")).toContainText("first public talk");
+      await expect(page.locator("#news-list > .fr-text")).toHaveCount(1);
+      await expect(page.locator("#news-list > .en-text")).toHaveCount(1);
     }
-    if (route === "/pages/blog.html") await expect(page.locator(".en-text .blog-entry")).toHaveCount(routes.filter(path => path.startsWith("/pages/blog/articles/")).length);
-    if (route === "/pages/work.html") await expect(page.locator("main")).toContainText("Research Intern");
+    if (route === "/pages/blog.html") await expect(page.locator(".en-text .blog-entry")).toHaveCount(blogArticles.length);
+    if (route === "/pages/work.html") await expect(page.locator("#view-work")).toHaveCount(1);
   }
   await context.close();
 });
@@ -74,19 +84,6 @@ test("all pages retain their main content and navigation without JavaScript", as
 test("navigation labels do not start with a slash", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator(".nav-links")).toHaveText("homenewsworkblog");
-});
-
-test("inline name reveals the portrait preview when clicked", async ({ page }) => {
-  await page.setViewportSize({ width: 320, height: 780 });
-  await page.goto("/");
-  await expect(page.locator(".profile-header")).toHaveCount(0);
-  const name = page.locator(".en-text .bio-name");
-  await name.click();
-  await expect(page.locator(".en-text .bio-photo-preview")).toBeVisible();
-  const image = page.locator(".en-text .bio-photo-preview img");
-  await expect(image).toHaveAttribute("alt", "GPT said I look like this");
-  expect(await image.evaluate(element => getComputedStyle(element).aspectRatio)).toBe("1013 / 760");
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
 test("English and French persist across navigation; keyboard skip link works", async ({ page }) => {
@@ -97,16 +94,18 @@ test("English and French persist across navigation; keyboard skip link works", a
   await expect(page.locator("main")).toBeFocused();
   await page.getByRole("button", { name: "Passer en français" }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "fr");
-  await page.locator('nav a[href="/pages/blog.html"]').click();
+  await page.locator("nav a[href=\"/pages/blog.html\"]").click();
   await expect(page.locator("html")).toHaveAttribute("lang", "fr");
-  await expect(page.locator("#blog-list > .fr-text")).toBeVisible();
+  await expect(page.locator("#blog-list > .fr-text")).toHaveCount(1);
   await page.getByRole("button", { name: "Switch to English" }).click();
-  await expect(page.locator("#blog-list > .en-text")).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("#blog-list > .en-text")).toHaveCount(1);
 });
 
 test("code buttons are anchored, copy successfully, and report clipboard failures", async ({ page, context }) => {
+  test.skip(codeArticle === undefined, "no published article contains a code block");
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
-  await page.goto(codeArticle);
+  await page.goto(codeArticle!);
   const pre = page.locator("article.en-text pre").first();
   const copy = pre.getByRole("button");
   await expect(copy).toBeVisible();
@@ -126,20 +125,22 @@ test("code buttons are anchored, copy successfully, and report clipboard failure
 });
 
 test("article return link sits above the title and not in the footer", async ({ page }) => {
-  await page.goto(codeArticle);
+  test.skip(anyArticle === undefined, "no published blog article");
+  await page.goto(anyArticle!);
   const back = page.locator("main > .article-back");
   await expect(back).toHaveAttribute("href", "/pages/blog.html");
   await expect(back).toContainText("Back to articles");
-  await expect(page.locator("footer .article-back, footer a[href='/pages/blog.html']")).toHaveCount(0);
+  await expect(page.locator("footer .article-back, footer a[href=\"/pages/blog.html\"]")).toHaveCount(0);
   const backBox = await back.boundingBox();
   const titleBox = await page.locator(".page-header h1").boundingBox();
   expect(backBox!.y + backBox!.height).toBeLessThan(titleBox!.y);
 });
 
 test("layouts fit narrow and wide screens in both languages", async ({ page }) => {
+  const pages = ["/", "/pages/news/", "/pages/work.html", "/pages/blog.html", ...blogArticles.slice(0, 2)];
   for (const width of [320, 390, 820, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const route of ["/", "/pages/news/", "/pages/work.html", "/pages/blog.html", codeArticle, "/pages/blog/articles/2026-08-23-dli-return/"]) {
+    for (const route of pages) {
       await page.goto(route);
       await page.evaluate(() => document.fonts.ready);
       for (let language = 0; language < 2; language++) {
@@ -151,8 +152,10 @@ test("layouts fit narrow and wide screens in both languages", async ({ page }) =
 });
 
 test("legacy links still reach the correct article", async ({ page }) => {
-  await page.goto("/pages/blog/post.html?post=minizinc-modeling");
-  await expect(page).toHaveURL(new RegExp(`${codeArticle}$`));
+  test.skip(anyArticle === undefined, "no published blog article");
+  const slug = anyArticle!.split("/").filter(Boolean).pop()!;
+  await page.goto(`/pages/blog/post.html?post=${slug}`);
+  await expect(page).toHaveURL(new RegExp(`${anyArticle}$`));
 });
 
 test("capture selected desktop/mobile layouts", async ({ page }, testInfo) => {
@@ -165,7 +168,9 @@ test("capture selected desktop/mobile layouts", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await page.screenshot({ path: testInfo.outputPath("home-mobile.png"), fullPage: true });
-  await page.goto(codeArticle);
-  await expect(page.locator("article.en-text .copy-code").first()).toBeVisible();
-  await page.screenshot({ path: testInfo.outputPath("article-mobile.png"), fullPage: true });
+  if (codeArticle) {
+    await page.goto(codeArticle);
+    await expect(page.locator("article.en-text .copy-code").first()).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath("article-mobile.png"), fullPage: true });
+  }
 });

@@ -1,23 +1,22 @@
-Salut, camarade humain :>
+Salut l'ami inconnu,
 
-<p>Je suis <span class="bio-portrait"><button class="bio-name" type="button" aria-label="Rosas — afficher un aperçu de la photo">Rosas</button><span class="bio-photo-preview" role="tooltip"><img src="/assets/media/me/looklikeme.jpg" alt="GPT a dit que je ressemblais à ceci"></span></span>.</p>
+Je poursuis une licence en informatique, option intelligence artificielle, à l'Université d'Abomey-Calavi au [Bénin](https://www.benin.bj/en). Je soutiendrai mon mémoire très bientôt.
 
-Je termine actuellement ma licence en informatique à l'Université d'Abomey-Calavi, au [Bénin](https://www.benin.bj/en) 🇧🇯, sous la supervision du Dr [Vinasétan Ratheil Houndji](https://ratheilh.github.io). J'obtiendrai mon diplôme bientôt.
+Mes recherches portent sur le machine learning appliqué au traitement des appels d'offres dans le domaine biomédical. J'aime passer mon temps libre à écouter de la musique et à lire la Bible. J'essaie de comprendre comment les choses fonctionnent, puis d'en faire quelque chose. Je [soliloque](https://www.oxfordlearnersdictionaries.com/definition/english/soliloquize) assez souvent :)
 
-Mes recherches actuelles portent sur la modélisation de problèmes de planification et de routage à l'aide de techniques d'optimisation combinatoire. [MPVRP-CC](https://ifri-ai-classes.github.io/MPVRP-CC/) est mon principal sujet d'étude en ce moment.
+> "Greeting professor Frank,
+> Hello
+> A Strange game
+> The only winning move is not to play"
+>
+> by an unknown author
 
-Pendant mon temps libre, j'aime explorer tout ce qui éveille ma curiosité.
+Ce que j'apprécie vraiment :
 
-Je suis du genre à envoyer des e-mails spontanés aux personnes dont je lis et admire le travail. Mais si vous souhaitez me contacter, n'hésitez pas à le faire. Je serai ravi de répondre à vos questions et d'échanger sur tout sujet avec lequel je me sens à l'aise. Vous pouvez me joindre à [perrierosas [at] gmail.com](mailto:perrierosas@gmail.com).
+* marcher, voyager et vivre des expériences hors du commun ;
+* jouer au football et au baby-foot, faire du skateboard ;
+* dessiner des choses abstraites ;
+* manger de la nourriture de qualité ;
+* recevoir des cadeaux.
 
-Ce qui m'aide à rester [sain d'esprit](https://dictionary.cambridge.org/dictionary/english/sane) :
-
-* marcher, voyager.
-* jouer au volleyball ou à des jeux de société avec ma famille, mes amis et mes collègues.
-* manger de bons plats et boire de bons jus de fruits.
-
-Pour en savoir plus sur mes activités récentes, consultez ma [page d'actualités](/pages/news/). Vous pouvez également jeter un œil à mon [blog](/pages/blog.html).
-
-Téléchargez mon CV [ici](/assets/cv/Rosas_Behoundja_Resume.pdf).
-
-[Github](https://github.com/rosasbehoundja), [LinkedIn](https://linkedin.com/in/rosasbehoundja)
+J'aime aussi rencontrer des personnes intéressantes. Si tu veux me dire bonjour, n'hésite pas à m'écrire sur [ma page de contact](https://david15.straw.page/) ou à me joindre à [david15tonon@gmail.com](mailto:david15tonon@gmail.com).

@@ -1,22 +1,22 @@
-Hello, fellow human :>
+Hello, fellow stranger,
 
-<p>I'm <span class="bio-portrait"><button class="bio-name" type="button" aria-label="Rosas — show photo preview">Rosas</button><span class="bio-photo-preview" role="tooltip"><img src="/assets/media/me/looklikeme.jpg" alt="GPT said I look like this"></span></span>.</p>
+I'm pursuing a bachelor's degree in computer science, specialising in artificial intelligence, at the University of Abomey-Calavi in [Benin](https://www.benin.bj/en). I will defend my dissertation very soon.
 
-I'm completing my bachelor's in computer science at University of Abomey-Calavi, in [Benin](https://www.benin.bj/en) 🇧🇯, working with Dr. [Vinasétan Ratheil Houndji](https://ratheilh.github.io). I'll graduate this fall.
+My research focuses on machine learning applied to the processing of tenders in the biomedical field. In my free time, I enjoy listening to music and reading the Bible. I try to understand how things work, then make something out of them. I [soliloquise](https://www.oxfordlearnersdictionaries.com/definition/english/soliloquize) quite often :)
 
-My current research involves modeling planning and routing problems with combinatorial optimization techniques. [MPVRP-CC](https://ifri-ai-classes.github.io/MPVRP-CC/) is my focus at the moment.
+> "Greeting professor Frank,
+> Hello
+> A Strange game
+> The only winning move is not to play"
+>
+> by an unknown author
 
-In my free time, I enjoy exploring whatever catches my curiosity.
+Things I really appreciate:
 
-I'm the one who sends cold emails to people whose work I read and admire. But if you want to reach out to me, feel free to do so. I will be happy to answer your questions and discuss any topic I feel comfortable with. You can reach me at [perrierosas [at] gmail.com](mailto:perrierosas@gmail.com).
+* walking, travelling, and having extraordinary experiences;
+* playing football and foosball, and skateboarding;
+* drawing abstract things;
+* eating high-quality food;
+* gifts.
 
-Things that keep me [sane](https://dictionary.cambridge.org/dictionary/english/sane):
-* walking, traveling.
-* playing volleyball or tabletop games with family, friends and coworkers.
-* eating good food and drinking good fruit juice.
-
-Get to know more about my recent activities on my [news page](/pages/news/). You can also check out my [blog](/pages/blog.html).
-
-Download my resume [here](/assets/cv/Rosas_Behoundja_Resume.pdf).
-
-[Github](https://github.com/rosasbehoundja), [LinkedIn](https://linkedin.com/in/rosasbehoundja)
+I also love meeting cool people. If you want to say hi, feel free to message me on [my contact page](https://david15.straw.page/) or reach me at [david15tonon@gmail.com](mailto:david15tonon@gmail.com).

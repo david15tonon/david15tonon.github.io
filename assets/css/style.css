@@ -72,6 +72,7 @@ audio, video { width: 100%; max-width: 100%; }
 .article-back:hover { color: var(--accent-color); }
 .page-header { margin-bottom: 2rem; }
 .page-header time { display: block; margin-bottom: 0.65rem; }
+.empty-state { margin: 0; padding: 2.5rem 0; color: var(--text-muted); font: 400 1em/1.6 var(--font-body); }
 .blog-entry { display: grid; grid-template-columns: 7rem minmax(0, 1fr); align-items: baseline; gap: 1rem; padding: 0.45rem 0; }
 .blog-title { margin: 0; font: 400 1em/1.5 var(--font-body); }
 .blog-title a { color: var(--text-dark); text-decoration: none; }

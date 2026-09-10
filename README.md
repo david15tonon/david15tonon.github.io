@@ -1,4 +1,6 @@
-## rosas-behoundja.github.io
+## david15tonon.github.io
+
+Thanks to Rosas
 
 Les contenus bilingues sont organisés en bundles :
 
@@ -7,6 +9,10 @@ contents/news/posts/2026-07-17-mentoring-noai/
 ├── index.fr.md
 └── index.en.md
 ```
+
+Les bundles `contents/blog/posts_template/` et `contents/news/posts_template/` servent de modèles : ils documentent le frontmatter et la mise en forme attendus. Ils sont ignorés par la génération (leur nom contient un `_`), il suffit donc de les copier dans `posts/` sous un nom `AAAA-MM-JJ-slug` pour créer un contenu.
+
+La page des travaux (`contents/pages/work/`) et la timeline des actualités (`contents/pages/news/`) décrivent leur propre structure dans un commentaire HTML en tête de fichier. Ces commentaires ne sont pas rendus sur le site.
 
 Les dossiers de billets et d'actualités suivent la convention `AAAA-MM-JJ-slug`. Les pages et thématiques sans date utilisent simplement leur slug (`contents/pages/home/`, par exemple), toujours avec un fichier par langue.
 

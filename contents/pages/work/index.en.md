@@ -1,19 +1,14 @@
-### Research Intern, [LRSIA](https://uac-rrteam.github.io/en)
-*Benin*
+<!--
+  Work / experience list, from most recent to oldest.
+  Each entry uses a level-3 heading (rendered as an h2 on the page), an italic
+  location line, then bullet points. Keep the same order in index.fr.md.
 
-- Designed a MILP model for the MPVRP variant focusing on changeover costs ([MPVRP-CC](https://ifri-ai-classes.github.io/MPVRP-CC/)); initiated CP modeling of the problem using successor and sequence variables.
-- Supervised the second-year AI undergraduate class project (Machine Learning course), contributing to the *[ifri-mini-ml-lib](https://github.com/IFRI-AI-Classes/ifri_mini_ml_lib)* pedagogical library (neural network, NLP, and anomaly detection modules).
-- **Tools**: Gurobi, MaxiCP, MiniCP, Python
+  Structure of an entry:
 
-### AI Developer, [IFRI & Tekbot Robotics](https://github.com/orgs/TRC-IFRI-REPO)
-*Benin*
+    ### Job title, [Organisation](https://organisation.example)
+    *Country*
 
-- Developed and deployed an AI vision model and robotic controls for an automated waste-sorting system, allowing a robot arm to instantly recognize and sort trash in real time to improve urban recycling.
-- **Tools**: YOLOv5, PyTorch, Jetson Nano, CUDA, ONNX, TensorRT
-
-### Machine Learning Engineer Intern, [eTihuku](https://www.etihuku.com/)
-*South Africa*
-
-- Built Review Scraper, an asynchronous API for collecting and aggregating customer reviews from Google Maps, HelloPeter, and X (Twitter), with background task processing and a scalable architecture.
-- Worked on SentiMaster, an AI platform that collects customer feedback from social media and phone calls, automatically translates and analyzes hidden sentiments, emotions and topics, and helps companies predict customer churn.
-- **Tools**: FastAPI, Playwright, PyTorch, Transformers, BERT models
+    - What you built or achieved, with an optional [link](https://project.example).
+    - Another achievement.
+    - **Tools**: Tool A, Tool B, Tool C
+-->

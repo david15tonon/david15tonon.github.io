@@ -19,4 +19,6 @@ Things I really appreciate:
 * eating high-quality food;
 * gifts.
 
+I also like building small tools that aren't necessarily useful to most people, but that can sometimes come in handy for someone — [I write about one on the blog](/pages/blog/articles/2026-09-21-tv-cli/).
+
 I also love meeting cool people. If you want to say hi, feel free to message me on [my contact page](https://david15.straw.page/) or reach me at [david15tonon@gmail.com](mailto:david15tonon@gmail.com).

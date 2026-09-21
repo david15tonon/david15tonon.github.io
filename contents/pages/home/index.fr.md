@@ -19,4 +19,6 @@ Ce que j'apprécie vraiment :
 * manger de la nourriture de qualité ;
 * recevoir des cadeaux.
 
+J'aime aussi construire des petits outils pas forcément très utiles à grand monde, mais qui peuvent parfois rendre service à quelqu'un — [j'en raconte un sur le blog](/pages/blog/articles/2026-09-21-tv-cli/).
+
 J'aime aussi rencontrer des personnes intéressantes. Si tu veux me dire bonjour, n'hésite pas à m'écrire sur [ma page de contact](https://david15.straw.page/) ou à me joindre à [david15tonon@gmail.com](mailto:david15tonon@gmail.com).
